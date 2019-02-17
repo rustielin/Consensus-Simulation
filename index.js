@@ -13,17 +13,30 @@ const io = require('socket.io').listen(server);
 
 // provide access to static SocketIO client
 app.use('/socketio', express.static(__dirname + '/node_modules/socket.io-client/dist/'));
+app.use(express.static(__dirname + '/public'));
+
+
 
 io.on('connection', socket => {
-  console.log('User connected');
-  socket.on('message', function(msg){
+
+  io.emit('user_join', socket.id);
+
+  // broadcast message to everyone
+  socket.on('message', msg => { 
     console.log('message: ' + msg);
 
     // TODO: boradcast only to those directly connected
     // TODO: don't broadcast to selt, act on local data
     // TODO: enable nodes to replay network state
     // TODO: probably define these message headers as enums
-    io.emit('message', msg); 
+    io.emit('message', msg);
+  });
+
+  socket.on('peers', msg => { // accepting peers list from other node
+    var recipient = msg.recipient;
+    var peers = msg.peers;
+    console.log('got peers call, sending to ' + recipient);
+    io.to(recipient).emit('peers', peers);
   });
 });
 
