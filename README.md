@@ -1,6 +1,8 @@
 # Consensus-Simulation
 Lightweight simulation of various consensus mechanisms; just for fun
 
+Uses websockets and redis "router" to construct relaxed message passing primitives
+
 ## Installation
 
 Live deployment here: https://consensus-simulation.appspot.com
