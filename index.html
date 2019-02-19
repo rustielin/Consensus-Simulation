@@ -89,9 +89,10 @@
             // register the callback later
             $('form#form-id').submit(e => {
                 e.preventDefault(); // prevents page reloading
-                var nsp = $('input#input-id').val();
-                console.log('GOT NSP: ' + nsp);
-                var socket = io('/' + nsp);
+                var room = $('input#input-id').val();
+                console.log('GOT ROOM: ' + room);
+                var socket = io();
+                socket.join(room);
                 // socket.emit('', '' + socket.id + ': ' + $('#m').val());
 
                 socket.on('message', msg => { // accepting general message from other node
@@ -101,7 +102,7 @@
                 // register the callback later
                 $('form#form-message').submit(e => {
                     e.preventDefault(); // prevents page reloading
-                    socket.emit('message', '' + socket.id + ': ' + $('input#input-message').val());
+                    socket.to(room).emit('message', '' + socket.id + ': ' + $('input#input-message').val());
                     $('input#input-message').val('');
                     return false;
                 });
