@@ -76,7 +76,11 @@ var updateGraph = (peers) => {
 
   // can only figure out layout once all graph loaded
   for (i = 0; i < peers.length; i++) {
-    addNode(peers[i], peers[Math.floor(i / 10)]);
+    if (i < 10) {
+      addNode(peers[i], null);
+    } else {
+      addNode(peers[i], peers[Math.floor(i / 10)]);
+    }
   }
 
   // probably not do this; expensive 
