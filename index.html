@@ -2,9 +2,13 @@
 <html>
   <head>
 
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+
+
     <!-- Import a bunch of stuff -->
+    <script src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
     <script src="/socketio/socket.io.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.4.2/cytoscape.min.js"></script>
+		<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
     <script
     src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
@@ -44,6 +48,7 @@
 
     
     <!-- load all dom stuff first, then add JS  -->
+    <script src="/js/cytoscape-cola.js"></script>
     <script src="/js/graph.js"></script>
     <script src="/js/comm.js"></script>
   </body>

@@ -47,27 +47,27 @@ var cy = cytoscape({
     },
 
   layout: {
-    name: 'breadthfirst',
+    name: 'cola',
     directed: true,
     roots: '#a',
     padding: 10
   }
 });
 
-var bfs = cy.elements().bfs('#a', function(){}, true);
+// var bfs = cy.elements().bfs('#a', function(){}, true);
 
-var i = 0;
-var highlightNextEle = function(){
-  if( i < bfs.path.length ){
-    bfs.path[i].addClass('highlighted');
+// var i = 0;
+// var highlightNextEle = function(){
+//   if( i < bfs.path.length ){
+//     bfs.path[i].addClass('highlighted');
 
-    i++;
-    setTimeout(highlightNextEle, 1000);
-  }
-};
+//     i++;
+//     setTimeout(highlightNextEle, 1000);
+//   }
+// };
 
 // kick off first highlight
-highlightNextEle();
+// highlightNextEle();
 
 /****************************MAIN********************************/
 
@@ -78,18 +78,34 @@ var updateGraph = (peers) => {
 
   // can only figure out layout once all graph loaded
   for (i = 0; i < peers.length; i++) {
-    cy.add({
-      group: 'nodes', 
-      data: {
-        id: peers[i],
-        name: peers[i]
+    try {
+      cy.add({
+        group: 'nodes', 
+        data: {
+          id: peers[i],
+          name: peers[i]
+        }
+      });
+    } catch (err) {
+      console.log("update graph err: ", err)
+    }
+    for (j = 0; j < peers.length; j++) {
+      try {
+        cy.add({
+          group: 'edges', 
+          data: {
+            source: peers[j],
+            target: peers[i]
+          }
+        });
+      } catch (err) {
+        console.log("update graph err: ", err)
       }
-    });
+    }
   }
-
   return new Promise(function (resolve) {
       var layout = cy.layout({ 
-          name: 'breadthfirst',
+          name: 'cola',
           roots: '#a',
           padding: 150
       });

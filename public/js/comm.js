@@ -30,12 +30,12 @@ $(function () {
         if (socket.id !== msg) {
             console.log('sending peers to ' + msg);
             socket.emit('peers', {'recipient': msg, 'peers': peers.concat([socket.id])});
-            peers.push(msg);
             $('#users').html(peers.join('<br>'))
         } else {
             $('#id').text(socket.id);
             $('#users').text(msg);
         }
+        peers.push(msg);
 
         console.log(peers);
     });
