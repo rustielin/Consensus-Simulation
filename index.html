@@ -4,25 +4,18 @@
 
     <!-- Import a bunch of stuff -->
     <script src="/socketio/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.4.2/cytoscape.min.js"></script>
     <script
     src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
     crossorigin="anonymous"></script>
-    <script src="/js/comm.js"></script>
+
+    <link href="/css/graph.css" rel="stylesheet" />
+    <link href="/css/style.css" rel="stylesheet" />
     <!-- End imports -->
 
-    <!-- TODO: make this look better -->
     <title>Socket.IO Message</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      /* form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; } */
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
-    </style>
+
   </head>
   <body>
     <div>
@@ -46,76 +39,12 @@
         </form>  
       </div>
     </div>
+
+    <div id="cy"></div> 
+
     
-
-    <script>
-        $(function () {
-            // var socket = io();
-            // var peers = []
-            // var messages = []
-
-            // socket.on('user_join', msg => { // when new node joins, send it your peers
-            //     console.log('id: ' + socket.id)
-                    
-            //     if (socket.id !== msg) {
-            //         console.log('sending peers to ' + msg);
-            //         socket.emit('peers', {'recipient': msg, 'peers': peers.concat([socket.id])});
-            //         peers.push(msg);
-            //         $('#users').html(peers.join('<br>'))
-            //     } else {
-            //         $('#id').text(socket.id);
-            //         $('#users').text(msg);
-            //     }
-
-            //     console.log(peers);
-            // });
-
-            // socket.on('message', msg => { // accepting general message from other node
-            //     $('#messages').append($('<li>').text(msg));
-            // });
-
-            // socket.on('peers', msg => { // accepting peers list from other node
-            //     console.log('got new peers BEFORE FILTER')
-            //     console.log(msg)
-            //     let difference = msg.filter(x => peers.indexOf(x) < 0);
-            //     console.log(difference);
-            //     peers.push.apply(peers, difference);
-            //     console.log('got new peers AFTER FILTER')
-            //     console.log(peers)
-            //     $('#users').html(peers.join('<br>'))
-
-            // });
-
-            // register the callback later
-            $('form#form-id').submit(e => {
-                e.preventDefault(); // prevents page reloading
-                var room = $('input#input-id').val();
-                console.log('GOT ROOM: ' + room);
-                var socket = io();
-                socket.emit('join', room)
-                // socket.emit('', '' + socket.id + ': ' + $('#m').val());
-
-                socket.on('message', msg => { // accepting general message from other node
-                  $('#messages').append($('<li>').text(msg));
-                });
-
-                // register the callback later
-                $('form#form-message').submit(e => {
-                    e.preventDefault(); // prevents page reloading
-                    var m_obj = {
-                      id: socket.id,
-                      message: $('input#input-message').val(),
-                      room: room
-                    };
-                    socket.emit('message', m_obj);
-                    $('input#input-message').val('');
-                    return false;
-                });
-
-                return false;
-            });
-        });
-    </script>
-
+    <!-- load all dom stuff first, then add JS  -->
+    <script src="/js/graph.js"></script>
+    <script src="/js/comm.js"></script>
   </body>
 </html>

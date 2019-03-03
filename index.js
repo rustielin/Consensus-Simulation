@@ -15,11 +15,11 @@ const io = require('socket.io').listen(server);
 app.use('/socketio', express.static(__dirname + '/node_modules/socket.io-client/dist/'));
 app.use(express.static(__dirname + '/public'));
 
-
+const defl_room = 'DEFAULT_ROOM'
 
 io.on('connection', socket => {
 
-  io.emit('user_join', socket.id);
+  io.emit('user_join', socket.id); // dial some initial peers
 
   socket.on('join', function(room) {
     socket.join(room);
