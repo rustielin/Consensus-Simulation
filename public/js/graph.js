@@ -4,72 +4,70 @@ var cy = cytoscape({
   boxSelectionEnabled: false,
   autounselectify: true,
 
-  style: cytoscape.stylesheet()
-    .selector('node')
-      .style({
-        'content': 'data(id)'
-      })
-    .selector('edge')
-      .style({
+  style: [
+    {
+      selector: 'node',
+      css: {
+        'content': 'data(id)',
+        'background-color': '#f92411'
+      }
+    },
+    {
+      selector: 'node:parent',
+      css: {
+        'background-opacity': 0.33
+      }
+    },
+    {
+      selector: 'edge',
+      css: {
         'curve-style': 'bezier',
         'target-arrow-shape': 'triangle',
         'width': 4,
         'line-color': '#ddd',
         'target-arrow-color': '#ddd'
-      })
-    .selector('.highlighted')
-      .style({
-        'background-color': '#61bffc',
-        'line-color': '#61bffc',
-        'target-arrow-color': '#61bffc',
-        'transition-property': 'background-color, line-color, target-arrow-color',
-        'transition-duration': '0.5s'
-      }),
-
-  elements: {
-      nodes: [
-        { data: { id: 'a' } },
-        { data: { id: 'b' } },
-        { data: { id: 'c' } },
-        { data: { id: 'd' } },
-        { data: { id: 'e' } }
-      ],
-
-      edges: [
-        { data: { id: 'a"e', weight: 1, source: 'a', target: 'e' } },
-        { data: { id: 'ab', weight: 3, source: 'a', target: 'b' } },
-        { data: { id: 'be', weight: 4, source: 'b', target: 'e' } },
-        { data: { id: 'bc', weight: 5, source: 'b', target: 'c' } },
-        { data: { id: 'ce', weight: 6, source: 'c', target: 'e' } },
-        { data: { id: 'cd', weight: 2, source: 'c', target: 'd' } },
-        { data: { id: 'de', weight: 7, source: 'd', target: 'e' } }
-      ]
-    },
+      }
+    }
+  ],
 
   layout: {
     name: 'cola',
     directed: true,
     roots: '#a',
     padding: 10
-  }
+  }, 
+  
 });
 
-// var bfs = cy.elements().bfs('#a', function(){}, true);
-
-// var i = 0;
-// var highlightNextEle = function(){
-//   if( i < bfs.path.length ){
-//     bfs.path[i].addClass('highlighted');
-
-//     i++;
-//     setTimeout(highlightNextEle, 1000);
-//   }
-// };
-
-// kick off first highlight
-// highlightNextEle();
-
 /****************************MAIN********************************/
+
+// adds edge between node IDs if it doesn't exist already
+var addEdge = (src, dst) => {
+  if (src == null || dst == null || src == dst) {
+      return;
+  }
+  var selector = "[source=\'" + src + "\'][target=\'" + dst +"\']" ;
+  if (cy.edges(selector).length == 0) {
+    cy.add({
+      group: 'edges',
+      data: {source: src, target: dst}
+    });
+  }
+}
+
+// adds node by ID if it doesn't exist already
+var addNode = (id, parent) => {
+  if (id == null) {
+    return;
+  }
+  var selector = "[id=\'" + id + "\']";
+  if (cy.nodes(selector).length == 0) {
+    cy.add({
+      group: 'nodes', 
+      data: {id: id, name: id, parent: parent}
+    });
+  }
+}
 
 // TODO: network graph actually, or updates to it
 var updateGraph = (peers) => {
@@ -78,28 +76,14 @@ var updateGraph = (peers) => {
 
   // can only figure out layout once all graph loaded
   for (i = 0; i < peers.length; i++) {
-    try {
-      cy.add({
-        group: 'nodes', 
-        data: {
-          id: peers[i],
-          name: peers[i]
-        }
-      });
-    } catch (err) {
-      console.log("update graph err: ", err)
-    }
+    addNode(peers[i], peers[Math.floor(i / 10)]);
+  }
+
+  // probably not do this; expensive 
+  for (i = 0; i < peers.length; i++) {
     for (j = 0; j < peers.length; j++) {
-      try {
-        cy.add({
-          group: 'edges', 
-          data: {
-            source: peers[j],
-            target: peers[i]
-          }
-        });
-      } catch (err) {
-        console.log("update graph err: ", err)
+      if (Math.random() < 0.01) {
+        addEdge(peers[i], peers[j])
       }
     }
   }

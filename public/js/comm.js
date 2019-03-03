@@ -1,43 +1,29 @@
 console.log('Hello!!')
-var socket_init = false
 
-// var socket = io();
-// $('form').submit(e => {
-//     e.preventDefault(); // prevents page reloading
-//     socket.emit('message', $('#m').val());
-//     $('#m').val('');
-//     return false;
-// });
-// socket.on('user_join', msg => {
-//     $('#users').append($('<li>').text(msg));
-// });
-// socket.on('message', msg => {
-//     $('#messages').append($('<li>').text(msg));
-// });
 
 var peers = []
 var messages = []
+var heartBeats = [] // tbh make a peer object and store all in metadata 
+
+var updatePeers = () => {
+  $('#peers').html('TOTAL: ' + peers.length + '<br>' + peers.join('<br>'))
+}
 
 $(function () {
 
     console.log("JQUERY LOAD");
     var socket = io();
 
-
     socket.on('user_join', msg => { // when new node joins, send it your peers
         console.log('id: ' + socket.id)
-            
-        if (socket.id !== msg) {
+        if (socket.id !== msg) { // new node joined, so seed dialing procedure here
             console.log('sending peers to ' + msg);
             socket.emit('peers', {'recipient': msg, 'peers': peers.concat([socket.id])});
-            $('#users').html(peers.join('<br>'))
-        } else {
+        } else { // self
             $('#id').text(socket.id);
-            $('#users').text(msg);
         }
         peers.push(msg);
-
-        console.log(peers);
+        updatePeers();
     });
 
     socket.on('message', msg => { // accepting general message from other node
@@ -45,17 +31,14 @@ $(function () {
     });
 
     socket.on('peers', msg => { // accepting peers list from other node
-        console.log('got new peers BEFORE FILTER')
-        console.log(msg)
+      console.log('Peers call')
         let difference = msg.filter(x => peers.indexOf(x) < 0);
-        console.log(difference);
-        updateGraph(difference);
         peers.push.apply(peers, difference);
-        console.log('got new peers AFTER FILTER')
+        console.log('got filtered peers')
         console.log(peers)
-        $('#users').html(peers.join('<br>'))
-
-    });
+        updateGraph(peers);
+        updatePeers();
+      });
 
     // register the callback later
     $('form#form-id').submit(e => {
