@@ -7,6 +7,7 @@ var heartBeats = [] // tbh make a peer object and store all in metadata
 
 var updatePeers = () => {
   $('#peers').html('TOTAL: ' + peers.length + '<br>' + peers.join('<br>'))
+  updateGraph(peers);
 }
 
 $(function () {
@@ -36,7 +37,6 @@ $(function () {
         peers.push.apply(peers, difference);
         console.log('got filtered peers')
         console.log(peers)
-        updateGraph(peers);
         updatePeers();
       });
 
