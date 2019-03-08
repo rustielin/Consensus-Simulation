@@ -17,6 +17,7 @@ $(function () {
 
     socket.on('user_join', msg => { // when new node joins, send it your peers
         console.log('id: ' + socket.id)
+        console.log('other id: ' + msg);
         if (socket.id !== msg) { // new node joined, so seed dialing procedure here
             console.log('sending peers to ' + msg);
             socket.emit('peers', {'recipient': msg, 'peers': peers.concat([socket.id])});
