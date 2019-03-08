@@ -2,85 +2,58 @@
 <html>
   <head>
 
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+
+
     <!-- Import a bunch of stuff -->
+    <script src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
     <script src="/socketio/socket.io.js"></script>
+		<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
     <script
     src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
     crossorigin="anonymous"></script>
-    <script src="/js/comm.js"></script>
+
+    <link href="/css/graph.css" rel="stylesheet" />
+    <link href="/css/style.css" rel="stylesheet" />
     <!-- End imports -->
 
-    <!-- TODO: make this look better -->
-    <title>Socket.IO Message</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
-    </style>
+    <title>Consensus Simulation</title>
+
   </head>
   <body>
-    <h1>User ID</h1>
-    <p id="id"></p>
-    <h1>Connected users</h1>
-    <p id="users"></p>
-    <hr>
-    <h1>Messages</h1>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-    
+    <div>
+        <h1>User ID</h1>
+        <p id="id"></p>
+        <h1 id="peerNum">Connected peers</h1>
+        <div style="overflow-y: scroll; height:100px;"> 
+            <p id="peers"></p>
+        </div>
+        <hr>
+        <h1>Messages</h1>
+        <div style="overflow-y: scroll; height:100px;"> 
+            <ul id="messages"></ul>
+        </div>
 
-    <script>
-        $(function () {
-            var socket = io();
-            var peers = []
-            $('form').submit(e => {
-                e.preventDefault(); // prevents page reloading
-                socket.emit('message', $('#m').val());
-                $('#m').val('');
-                return false;
-            });
+    </div>
+    <div>
+      <div style="padding-top: 50px">
+        <form id="form-id" action="">
+          <input id="input-id" autocomplete="off" /><button>Submit ID</button>
+        </form>  
+      </div>
+      <div style="padding-top: 50px">
+        <form id="form-message" action="">
+          <input id="input-message" autocomplete="off" /><button>Send</button>
+        </form>  
+      </div>
+    </div>
 
-            socket.on('user_join', msg => { // when new node joins, send it your peers
-                console.log('id: ' + socket.id)
-                    
-                if (socket.id !== msg) {
-                    console.log('sending peers to ' + msg);
-                    socket.emit('peers', {'recipient': msg, 'peers': peers});
-                    peers.push(msg);
-                    $('#users').html(peers.join('<br>'))
-                } else {
-                    $('#id').text(socket.id);
-                    $('#users').text(msg);
-                }
+    <div id="cy"></div> 
 
-                console.log(peers);
-            });
-
-            socket.on('message', msg => { // accepting general message from other node
-                $('#messages').append($('<li>').text(msg));
-            });
-
-            socket.on('peers', msg => { // accepting peers list from other node
-                console.log('got new peers BEFORE FILTER')
-                console.log(msg)
-                let difference = msg.filter(x => peers.indexOf(x) < 0);
-                console.log(difference);
-                peers.push.apply(peers, difference);
-                console.log('got new peers AFTER FILTER')
-                console.log(peers)
-                $('#users').html(peers.join('<br>'))
-
-            });
-        });
-    </script>
-
+    <!-- load all dom stuff first, then add JS  -->
+    <script src="/js/cytoscape-cola.js"></script>
+    <script src="/js/graph.js"></script>
+    <script src="/js/comm.js"></script>
   </body>
 </html>

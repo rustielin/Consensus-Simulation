@@ -15,11 +15,15 @@ const io = require('socket.io').listen(server);
 app.use('/socketio', express.static(__dirname + '/node_modules/socket.io-client/dist/'));
 app.use(express.static(__dirname + '/public'));
 
-
+const defl_room = 'DEFAULT_ROOM'
 
 io.on('connection', socket => {
 
-  io.emit('user_join', socket.id);
+  io.emit('user_join', socket.id); // dial some initial peers
+
+  socket.on('join', function(room) {
+    socket.join(room);
+  });
 
   // broadcast message to everyone
   socket.on('message', msg => { 
@@ -29,7 +33,10 @@ io.on('connection', socket => {
     // TODO: don't broadcast to selt, act on local data
     // TODO: enable nodes to replay network state
     // TODO: probably define these message headers as enums
-    io.emit('message', msg);
+    var id = msg.id;
+    var message = msg.message;
+    var room = msg.room;
+    io.to(room).emit('message', id + ': ' + message);
   });
 
   socket.on('peers', msg => { // accepting peers list from other node
@@ -43,6 +50,23 @@ io.on('connection', socket => {
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
+
+// app.get('/register/:id', function(req, res){
+//   var id = req.params.id;
+//   console.log('got id: ' + id);
+//   var nsp = io.of('/' + id);
+//   nsp.on('connection', function(socket){
+//     console.log('someone connected');
+
+//     socket.on('message', msg => {
+//       console.log('message: ' + msg);
+//       nsp.emit('message', msg);
+//     });
+
+//   });
+
+//   res.sendFile(__dirname + '/index.html');
+// });
 
 // // An api endpoint that returns a short list of items
 // app.get('/api/getList', (req, res) => {
