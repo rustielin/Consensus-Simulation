@@ -11,7 +11,7 @@ def on_connect():
     print("Connected")
     id = request.sid
     print("id: " + id)
-    emit('user_join', id)
+    emit('user_join', id, broadcast=True)
 
 @socketio.on('peers')
 def handle_peers(data):

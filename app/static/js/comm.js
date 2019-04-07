@@ -3,7 +3,7 @@ console.log('Hello!!')
 
 var peers = []
 var messages = []
-var heartBeats = [] // tbh make a peer object and store all in metadata 
+var heartBeats = [] // tbh make a peer object and store all in metadata
 
 var updatePeers = () => {
   $('#peers').html('TOTAL: ' + peers.length + '<br>' + peers.join('<br>'))
@@ -16,7 +16,7 @@ $(function () {
     var socket = io();
 
     socket.on('user_join', msg => { // when new node joins, send it your peers
-        console.log('id: ' + socket.id)
+        console.log('id: ' + socket.id);
         console.log('other id: ' + msg);
         if (socket.id !== msg) { // new node joined, so seed dialing procedure here
             console.log('sending peers to ' + msg);
@@ -33,7 +33,7 @@ $(function () {
     });
 
     socket.on('peers', msg => { // accepting peers list from other node
-      console.log('Peers call')
+        console.log('Peers call');
         let difference = msg.filter(x => peers.indexOf(x) < 0);
         peers.push.apply(peers, difference);
         console.log('got filtered peers')
