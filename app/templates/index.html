@@ -7,15 +7,15 @@
 
     <!-- Import a bunch of stuff -->
     <script src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
-    <script src="/socketio/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.slim.dev.js"></script>
 		<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
     <script
     src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
     crossorigin="anonymous"></script>
 
-    <link href="/css/graph.css" rel="stylesheet" />
-    <link href="/css/style.css" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/graph.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
     <!-- End imports -->
 
     <title>Consensus Simulation</title>
@@ -26,12 +26,12 @@
         <h1>User ID</h1>
         <p id="id"></p>
         <h1 id="peerNum">Connected peers</h1>
-        <div style="overflow-y: scroll; height:100px;"> 
+        <div style="overflow-y: scroll; height:100px;">
             <p id="peers"></p>
         </div>
         <hr>
         <h1>Messages</h1>
-        <div style="overflow-y: scroll; height:100px;"> 
+        <div style="overflow-y: scroll; height:100px;">
             <ul id="messages"></ul>
         </div>
 
@@ -40,20 +40,20 @@
       <div style="padding-top: 50px">
         <form id="form-id" action="">
           <input id="input-id" autocomplete="off" /><button>Submit ID</button>
-        </form>  
+        </form>
       </div>
       <div style="padding-top: 50px">
         <form id="form-message" action="">
           <input id="input-message" autocomplete="off" /><button>Send</button>
-        </form>  
+        </form>
       </div>
     </div>
 
-    <div id="cy"></div> 
+    <div id="cy"></div>
 
     <!-- load all dom stuff first, then add JS  -->
-    <script src="/js/cytoscape-cola.js"></script>
-    <script src="/js/graph.js"></script>
-    <script src="/js/comm.js"></script>
+    <script src="{{ url_for('static', filename='js/cytoscape-cola.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/graph.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/comm.js') }}"></script>
   </body>
 </html>
