@@ -41,6 +41,20 @@ $(function () {
         updatePeers();
       });
 
+    socket.on('received_blockchain', msg => {
+    // when server sends blockchain from another client 
+
+        // if proposing block, need to take current copy of the blockchain
+        // call create block
+        // publish it to all of my peers
+        
+        console.log('Propagating block');
+        propogateBlock(msg);
+        // at the same time, be accepting new chains 
+    });
+
+
+
     // register the callback later
     $('form#form-id').submit(e => {
         e.preventDefault(); // prevents page reloading
