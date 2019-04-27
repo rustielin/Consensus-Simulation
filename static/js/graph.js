@@ -86,9 +86,10 @@ var updateGraph = (peers) => {
   // probably not do this; expensive 
   for (i = 0; i < peers.length; i++) {
     for (j = 0; j < peers.length; j++) {
-      if (Math.random() < 0.01) {
+      // if (Math.random() < 0.01) {
         addEdge(peers[i], peers[j])
-      }
+        console.log("ADDED EDGE")
+      // }
     }
   }
   return new Promise(function (resolve) {

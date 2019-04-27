@@ -1,10 +1,15 @@
-from app import app
 from flask_socketio import SocketIO, emit, join_room, leave_room, send
-from flask import request
+from flask import Flask, request, render_template
 
 import sys
 
+app = Flask(__name__)
+
 socketio = SocketIO(app)
+
+@app.route('/')
+def index():
+    return render_template('index.html', title='Home')
 
 @app.after_request
 def add_header(response):
