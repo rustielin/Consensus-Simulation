@@ -27,3 +27,6 @@ pids
 # dotenv environment variables file
 .env
 
+# gcloud 
+lib
+

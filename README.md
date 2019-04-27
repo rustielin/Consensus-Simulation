@@ -7,7 +7,7 @@ Uses websockets and redis "router" to construct relaxed message passing primitiv
 
 Live deployment here: https://consensus-simulation.appspot.com
 
-To run locally, run `npm install; npm start` in the root directory, and visit `localhost:5000`
+To run locally, run `python2 consensus-sim.py` in the root directory, and visit `localhost:5000`
 
 ## Resources
 
