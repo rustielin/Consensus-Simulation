@@ -22,35 +22,46 @@
 
   </head>
   <body>
-    <div>
-        <h1>Voting power: {{power}} </h1>
-        <h1>User ID</h1>
-        <p id="id"></p>
-        <h1 id="peerNum">Connected peers</h1>
-        <div style="overflow-y: scroll; height:100px;">
-            <p id="peers"></p>
-        </div>
-        <hr>
-        <h1>Messages</h1>
-        <div style="overflow-y: scroll; height:100px;">
-            <ul id="messages"></ul>
-        </div>
 
-    </div>
-    <div>
-      <div style="padding-top: 50px">
-        <form id="form-id" action="">
-          <input id="input-id" autocomplete="off" /><button>Submit ID</button>
-        </form>
-      </div>
-      <div style="padding-top: 50px">
-        <form id="form-message" action="">
-          <input id="input-message" autocomplete="off" /><button>Send</button>
-        </form>
-      </div>
-    </div>
+      <div class="split left">
+          <div class="centered">
+              <div>
+                  <h1>Voting power: {{power}} </h1>
+                  <h1>User ID</h1>
+                  <p id="id"></p>
+                  <h1 id="peerNum">Connected peers</h1>
+                  <div style="overflow-y: scroll; height:100px;">
+                      <p id="peers"></p>
+                  </div>
+                  <hr>
+                  <h1>Messages</h1>
+                  <div style="overflow-y: scroll; height:100px;">
+                      <ul id="messages"></ul>
+                  </div>
+          
+              </div>
+              <div>
+                <div style="padding-top: 50px">
+                  <form id="form-id" action="">
+                    <input id="input-id" autocomplete="off" /><button>Submit ID</button>
+                  </form>
+                </div>
+                <div style="padding-top: 50px">
+                  <form id="form-message" action="">
+                    <input id="input-message" autocomplete="off" /><button>Send</button>
+                  </form>
+                </div>
+              </div>
+          </div>
+        </div>
+        
+        <div class="split right">
+          <div id="cy"></div>
+        </div>
+        
 
-    <div id="cy"></div>
+
+
 
     <!-- load all dom stuff first, then add JS  -->
     <script src="{{ url_for('static', filename='js/cytoscape-cola.js') }}"></script>
