@@ -76,7 +76,7 @@ var register_form_callbacks = () => {
 
         // register the callback later
         $('form#form-message').submit(e => {
-            e.preventDefault(); // prevents page reloading
+            // e.preventDefault(); // prevents page reloading
             var m_obj = {
               id: socket.id,
               message: $('input#input-message').val(),
