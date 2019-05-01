@@ -58,8 +58,8 @@ def handle_join(room):
     join_room(room)
     # send(id + ' has entered the room.', room=room)
 
-@socketio.on('received_blockchain')
-def handle_received_blockchain(blockchain):
+@socketio.on('propagate_blockchain')
+def handle_propagate_blockchain(blockchain):
     '''
     Basically just a message handler. Forwards the entire blockchain between nodes
     '''
