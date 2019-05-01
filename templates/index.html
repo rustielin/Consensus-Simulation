@@ -23,7 +23,7 @@
   </head>
   <body>
     <div>
-        <h1>{{test}} </h1>
+        <h1>Voting power: {{power}} </h1>
         <h1>User ID</h1>
         <p id="id"></p>
         <h1 id="peerNum">Connected peers</h1>
@@ -56,5 +56,6 @@
     <script src="{{ url_for('static', filename='js/cytoscape-cola.js') }}"></script>
     <script src="{{ url_for('static', filename='js/graph.js') }}"></script>
     <script src="{{ url_for('static', filename='js/comm.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/worker.js') }}"></script>
   </body>
 </html>

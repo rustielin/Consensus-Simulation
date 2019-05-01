@@ -7,9 +7,27 @@ app = Flask(__name__)
 
 socketio = SocketIO(app)
 
+DEFL_INST = 'abc123' # default simulation instance
+power_map = {}
+power_map[DEFL_INST] = 0 # TODO: will have to adjust everyone's power on new nodes
+
 @app.route('/')
 def index():
-    return render_template('index.html', title='Home')
+    power = request.args.get('power')
+
+    # TODO: find a better way to do this
+    defl_fail = 'Invalid voting power, specify FLOAT leq 1: hostname?power=0.001'
+
+    try: # invalid power
+        if not power: # no power
+            return defl_fail
+        power = float(power)
+        if power >= 1:
+            return defl_fail
+    except ValueError:
+        return defl_fail
+
+    return render_template('index.html', title='Home', power=power)
 
 @app.after_request
 def add_header(response):
@@ -39,6 +57,14 @@ def handle_peers(data):
 def handle_join(room):
     join_room(room)
     # send(id + ' has entered the room.', room=room)
+
+@socketio.on('received_blockchain')
+def handle_received_blockchain(blockchain):
+    '''
+    Basically just a message handler. Forwards the entire blockchain between nodes
+    '''
+    emit('received_blockchain', blockchain, broadcast=True)
+
 
 @socketio.on('message')
 def handle_message(data):

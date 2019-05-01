@@ -1,0 +1,62 @@
+/**
+ * The "blockchain" client/worker
+ */
+
+var blockchain = {
+	name: "our babchain",
+	consensus: "proof of stake",
+	length: 0,
+	blocks: []
+};
+
+var proposeBlock = (id, blockchain) => {
+	var block = {
+		creator: id,
+		index: blockchain.length + 1,
+		value: "dis new block"
+	};
+	blockchain.length = blockchain.length + 1;
+    blockchain.blocks.push(block);
+    self.postMessage('NEW BLOCKCHAIN HEIGHT: ' + blockchain.blocks.length);
+	return blockchain
+};
+
+// receive other_blockchain, and replace with current if longer
+// actually propagates the entire blockchain lmaoooOO
+var propagateBlock = (other_blockchain) => {
+	// new blockchain: user_blockchain
+	// old blockchain: blockchain
+	if (other_blockchain.length > blockchain.length) {
+		blockchain = other_blockchain;
+		peers.foreach(peer => {
+			socket.emit('received_blockchain', blockchain);
+		});
+	} 
+};
+
+
+/**
+ * start client with normalized power p
+ */
+var client_loop = (id, p) => {
+
+    r = Math.random();
+    if (r < p) {
+        self.postMessage('PROPOSE ' + r + ' BY NODE ' + id);
+        proposeBlock(id, blockchain);
+    }
+
+}
+
+self.addEventListener('message', function(e) {
+    if ('start_worker' in e.data) {
+        id = e.data.start_worker.id
+        vot_pwr = e.data.start_worker.voting_power
+        self.postMessage('Worker started with power: ' + vot_pwr)
+        setInterval(() => client_loop(id, vot_pwr), 1000); // a block every 1s normalized
+        self.postMessage('LOOP')
+    } else if ('stop_worker' in e.data) {
+        self.postMessage('STOPPED WORKER');
+        self.close();
+    }
+});
