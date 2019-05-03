@@ -31,7 +31,7 @@ var propagateBlock = (other_blockchain) => {
 		peers.foreach(peer => {
 			socket.emit('received_blockchain', blockchain); // TODO: make some abstraction for sockets here
 		});
-	} 
+	}
 };
 
 
@@ -49,11 +49,12 @@ var client_loop = (id, p) => {
 }
 
 self.addEventListener('message', function(e) {
+	console.log(e.data);
     if ('start_worker' in e.data) {
         id = e.data.start_worker.id
         vot_pwr = e.data.start_worker.voting_power
         soc = e.data.start_worker.socket;
-        
+
         self.postMessage('Worker started with power: ' + vot_pwr)
         setInterval(() => client_loop(id, vot_pwr), 1000); // a block every 1s normalized
         self.postMessage('LOOP')

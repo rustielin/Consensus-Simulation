@@ -35,8 +35,8 @@ var cy = cytoscape({
     directed: true,
     roots: '#a',
     padding: 10
-  }, 
-  
+  },
+
 });
 
 /****************************MAIN********************************/
@@ -55,6 +55,11 @@ var addEdge = (src, dst) => {
   }
 }
 
+var getNode = (id) => {
+    var selector = "[id=\'" + id + "\']";
+    return cy.nodes(selector);
+}
+
 // adds node by ID if it doesn't exist already
 var addNode = (id, parent) => {
   if (id == null) {
@@ -63,10 +68,16 @@ var addNode = (id, parent) => {
   var selector = "[id=\'" + id + "\']";
   if (cy.nodes(selector).length == 0) {
     cy.add({
-      group: 'nodes', 
+      group: 'nodes',
       data: {id: id, name: id, parent: parent}
     });
   }
+}
+
+// worker.js can't see this method? what is javascript
+var animateProposal = (id) => {
+    var node = getNode(id);
+    console.log(node);
 }
 
 // TODO: network graph actually, or updates to it
@@ -83,7 +94,7 @@ var updateGraph = (peers) => {
     }
   }
 
-  // probably not do this; expensive 
+  // probably not do this; expensive
   for (i = 0; i < peers.length; i++) {
     for (j = 0; j < peers.length; j++) {
       // if (Math.random() < 0.01) {
@@ -93,15 +104,12 @@ var updateGraph = (peers) => {
     }
   }
   return new Promise(function (resolve) {
-      var layout = cy.layout({ 
+      var layout = cy.layout({
           name: 'cola',
           roots: '#a',
           padding: 150
       });
-      layout.run(); 
+      layout.run();
       resolve();
   })
 }
-
-
-

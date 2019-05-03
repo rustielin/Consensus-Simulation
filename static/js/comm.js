@@ -42,20 +42,20 @@ var register_consensus_worker = (socket) => {
     worker.postMessage({start_worker: {
         id: NODE_ID,
         voting_power: DEFL_VOT_POWER
-    }}); // DEFL 
+    }}); // DEFL
 
-    // when server sends blockchain from another client 
+    // when server sends blockchain from another client
     socket.on('received_blockchain', msg => {
 
         // if proposing block, need to take current copy of the blockchain
         // call create block
         // publish it to all of my peers
-        
+
         console.log('Propagating block');
         worker.postMessage({propogate_block: {
             blockchain: msg
         }});
-        socket.emit('propagate_blockchain', msg); // at the same time, be accepting new chains 
+        socket.emit('propagate_blockchain', msg); // at the same time, be accepting new chains
     });
 
     // worker.postMessage('stop_worker')
