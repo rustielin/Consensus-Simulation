@@ -14,6 +14,11 @@ var updatePeers = () => {
   updateGraph(peers);
 }
 
+var addPeers = (new_peers) => {
+    let difference = new_peers.filter(x => peers.indexOf(x) < 0);
+    peers.push.apply(peers, difference);
+}
+
 $(function () {
 
     // var this_js_script = $('script[src*=comm]');
@@ -62,7 +67,7 @@ var register_consensus_worker = (socket) => {
  */
 var register_form_callbacks = () => {
     // register the callback later
-    $('form#form-id').submit(e => {
+    $('form#form-join').submit(e => {
         e.preventDefault(); // prevents page reloading
         var room = $('input#input-id').val();
         console.log('GOT ROOM: ' + room);
@@ -102,14 +107,15 @@ var register_socketio_callbacks = () => {
         console.log('other id: ' + msg);
         if (socket.id !== msg) { // new node joined, so seed dialing procedure here
             console.log('sending peers to ' + msg);
-            socket.emit('peers', {'recipient': msg, 'peers': peers.concat([socket.id])});
+            socket.emit('peers', {'recipient': msg, 'peers': peers});
         } else { // self
             $('#id').text(socket.id);
             NODE_ID = socket.id; // CAN ONLY GET HERE???
             register_consensus_worker(socket);
         }
-        peers.push(msg);
+        addPeers([msg]);
         updatePeers();
+        console.log("GOT USER_JOIN PEERS: ", peers);
     });
 
     socket.on('message', msg => { // accepting general message from other node
@@ -118,6 +124,8 @@ var register_socketio_callbacks = () => {
 
     socket.on('peers', msg => { // accepting peers list from other node
         console.log('Peers call');
+        console.log('Before filter')
+        console.log(peers)
         let difference = msg.filter(x => peers.indexOf(x) < 0);
         peers.push.apply(peers, difference);
         console.log('got filtered peers')
