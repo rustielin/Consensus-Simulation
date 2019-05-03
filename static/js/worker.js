@@ -29,7 +29,7 @@ var propagateBlock = (other_blockchain) => {
 	if (other_blockchain.length > blockchain.length) {
 		blockchain = other_blockchain;
 		peers.foreach(peer => {
-			socket.emit('received_blockchain', blockchain);
+			socket.emit('received_blockchain', blockchain); // TODO: make some abstraction for sockets here
 		});
 	} 
 };
@@ -42,7 +42,7 @@ var client_loop = (id, p) => {
 
     r = Math.random();
     if (r < p) {
-        self.postMessage('PROPOSE ' + r + ' BY NODE ' + id);
+        self.postMessage('PROPOSAL BY NODE ' + id);
         proposeBlock(id, blockchain);
     }
 
@@ -52,11 +52,17 @@ self.addEventListener('message', function(e) {
     if ('start_worker' in e.data) {
         id = e.data.start_worker.id
         vot_pwr = e.data.start_worker.voting_power
+        soc = e.data.start_worker.socket;
+        
         self.postMessage('Worker started with power: ' + vot_pwr)
         setInterval(() => client_loop(id, vot_pwr), 1000); // a block every 1s normalized
         self.postMessage('LOOP')
+    } else if ('propagate_block' in e.data) {
+        propagateBlock(e.data.propagate_block.blockchain);
     } else if ('stop_worker' in e.data) {
         self.postMessage('STOPPED WORKER');
         self.close();
+    } else {
+        self.postMessage('INVALID MESSAGE IDK WHAT YOU"RE SAYING AHHHH');
     }
 });

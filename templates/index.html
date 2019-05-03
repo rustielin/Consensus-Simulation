@@ -4,6 +4,18 @@
 
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
 
+    <!-- for getting the params and reloading -->
+    <script>
+      var reload_with_params = () => {
+        var url = window.location.href;    
+        var idx = url.indexOf('?')
+        if (idx > -1){ // found it, remove it
+          url = url.substr(0, idx);
+        }
+        url += '?power=' + document.getElementById("input-power").value +'&sim_id=' + document.getElementById("input-id").value;
+        window.location.href = url;
+      }
+    </script>
 
     <!-- Import a bunch of stuff -->
     <script src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
@@ -22,35 +34,53 @@
 
   </head>
   <body>
-    <div>
-        <h1>Voting power: {{power}} </h1>
-        <h1>User ID</h1>
-        <p id="id"></p>
-        <h1 id="peerNum">Connected peers</h1>
-        <div style="overflow-y: scroll; height:100px;">
-            <p id="peers"></p>
-        </div>
-        <hr>
-        <h1>Messages</h1>
-        <div style="overflow-y: scroll; height:100px;">
-            <ul id="messages"></ul>
-        </div>
 
-    </div>
-    <div>
-      <div style="padding-top: 50px">
-        <form id="form-id" action="">
-          <input id="input-id" autocomplete="off" /><button>Submit ID</button>
-        </form>
-      </div>
-      <div style="padding-top: 50px">
-        <form id="form-message" action="">
-          <input id="input-message" autocomplete="off" /><button>Send</button>
-        </form>
-      </div>
-    </div>
+      <div class="split left">
+          <div class="centered">
+              <div>
+                  <h1>Voting power: {{power}} </h1>
+                  <h1>User ID</h1>
+                  <p id="id"></p>
+                  <h1 id="peerNum">Connected peers</h1>
+                  <div style="overflow-y: scroll; height:100px;">
+                      <p id="peers"></p>
+                  </div>
+                  <hr>
+                  <h1>Messages</h1>
+                  <div style="overflow-y: scroll; height:100px;">
+                      <ul id="messages"></ul>
+                  </div>
+          
+              </div>
+              <div>
 
-    <div id="cy"></div>
+                <div style="padding-top: 50px">
+                  <form id="form-id" action="">
+                    <input id="input-id" autocomplete="off" placeholder="Simulation ID (e.g. abc123)" />
+                  </form>
+
+                  <form action="">
+                      <input id="input-power" autocomplete="off" placeholder="Voting power (e.g. float range(0,1))"/>
+                    </form>
+
+                    <input id="form-join" type="button" value="Join with params" onclick="reload_with_params()"/>
+                </div>
+
+                <div style="padding-top: 50px">
+                  <form id="form-message" action="">
+                    <input id="input-message" autocomplete="off" /><input type="button" value="Send message">
+                  </form>
+                </div>
+
+              </div>
+
+          </div>
+        </div>
+        
+        <div class="split right">
+          <div id="cy"></div>
+        </div>
+        
 
     <!-- load all dom stuff first, then add JS  -->
     <script src="{{ url_for('static', filename='js/cytoscape-cola.js') }}"></script>

@@ -14,6 +14,11 @@ var updatePeers = () => {
   updateGraph(peers);
 }
 
+var addPeers = (new_peers) => {
+    let difference = new_peers.filter(x => peers.indexOf(x) < 0);
+    peers.push.apply(peers, difference);
+}
+
 $(function () {
 
     // var this_js_script = $('script[src*=comm]');
@@ -25,7 +30,8 @@ $(function () {
 
 });
 
-var register_consensus_worker = () => {
+// TODO: messy, but consensus also needs socket lmao
+var register_consensus_worker = (socket) => {
     console.log("CONSENUS STARTINGGGG")
 
     // all nodes spinning until they can propose (see blockchain.js)
@@ -38,6 +44,20 @@ var register_consensus_worker = () => {
         voting_power: DEFL_VOT_POWER
     }}); // DEFL 
 
+    // when server sends blockchain from another client 
+    socket.on('received_blockchain', msg => {
+
+        // if proposing block, need to take current copy of the blockchain
+        // call create block
+        // publish it to all of my peers
+        
+        console.log('Propagating block');
+        worker.postMessage({propogate_block: {
+            blockchain: msg
+        }});
+        socket.emit('propagate_blockchain', msg); // at the same time, be accepting new chains 
+    });
+
     // worker.postMessage('stop_worker')
     // console.log('STOPPED WORKER')
 }
@@ -47,7 +67,7 @@ var register_consensus_worker = () => {
  */
 var register_form_callbacks = () => {
     // register the callback later
-    $('form#form-id').submit(e => {
+    $('form#form-join').submit(e => {
         e.preventDefault(); // prevents page reloading
         var room = $('input#input-id').val();
         console.log('GOT ROOM: ' + room);
@@ -61,7 +81,7 @@ var register_form_callbacks = () => {
 
         // register the callback later
         $('form#form-message').submit(e => {
-            e.preventDefault(); // prevents page reloading
+            // e.preventDefault(); // prevents page reloading
             var m_obj = {
               id: socket.id,
               message: $('input#input-message').val(),
@@ -87,14 +107,15 @@ var register_socketio_callbacks = () => {
         console.log('other id: ' + msg);
         if (socket.id !== msg) { // new node joined, so seed dialing procedure here
             console.log('sending peers to ' + msg);
-            socket.emit('peers', {'recipient': msg, 'peers': peers.concat([socket.id])});
+            socket.emit('peers', {'recipient': msg, 'peers': peers});
         } else { // self
             $('#id').text(socket.id);
             NODE_ID = socket.id; // CAN ONLY GET HERE???
-            register_consensus_worker();
+            register_consensus_worker(socket);
         }
-        peers.push(msg);
+        addPeers([msg]);
         updatePeers();
+        console.log("GOT USER_JOIN PEERS: ", peers);
     });
 
     socket.on('message', msg => { // accepting general message from other node
@@ -103,22 +124,12 @@ var register_socketio_callbacks = () => {
 
     socket.on('peers', msg => { // accepting peers list from other node
         console.log('Peers call');
+        console.log('Before filter')
+        console.log(peers)
         let difference = msg.filter(x => peers.indexOf(x) < 0);
         peers.push.apply(peers, difference);
         console.log('got filtered peers')
         console.log(peers)
         updatePeers();
       });
-
-    // when server sends blockchain from another client 
-    socket.on('received_blockchain', msg => {
-
-        // if proposing block, need to take current copy of the blockchain
-        // call create block
-        // publish it to all of my peers
-        
-        console.log('Propagating block');
-        propogateBlock(msg);
-        // at the same time, be accepting new chains 
-    });
 }
