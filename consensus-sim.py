@@ -7,9 +7,19 @@ app = Flask(__name__)
 
 socketio = SocketIO(app)
 
-DEFL_INST = 'abc123' # default simulation instance
-power_map = {}
-power_map[DEFL_INST] = 0 # TODO: will have to adjust everyone's power on new nodes
+power_map = {} # track aggregate power in each 
+
+# recalculate the total power in a simulation instance
+def update_power_map(sim_id, node_id, power):
+    if sim_id not in power_map:
+        power_map[sim_id] = {}
+    power_map[sim_id][node_id] = power
+
+# return the total voting power in a simulation instance
+def get_total_sim_power(sim_id):
+    if sim_id not in power_map:
+        return -1
+    return sum(power_map[sim_id].values())
 
 @app.route('/')
 def index():
@@ -47,6 +57,27 @@ def on_connect():
     print("id: " + id)
     # emit('user_join', id, broadcast=True)
 
+@socketio.on('disconnect')
+def on_disconnect():
+    """
+    Mainly want to remove entries in power map
+    """
+    print("DISCONNECTING: " + str(request.sid))
+    
+    sim_ids = set() # keep a set of affected simulations 
+    for sim_id in power_map: # search the power map for membership in simulations
+        d = power_map[sim_id]
+        if request.sid in d:
+            sim_ids.add(sim_id)
+            del power_map[sim_id][request.sid]
+
+    print("AFFECTED SIMS: ")
+    print(sim_ids)
+
+    for sim in sim_ids:
+        emit('power_update', get_total_sim_power(sim), broadcast=True, room=sim)        
+
+
 @socketio.on('peers')
 def handle_peers(data):
     recipient = data['recipient']
@@ -57,10 +88,12 @@ def handle_peers(data):
 
 @socketio.on('join_sim_id')
 def handle_sim_join(data):
-    vot_pwr = data['voting_power']
+    vot_pwr = float(data['voting_power'])
     simulation_id = data['simulation_id']
     join_room(simulation_id)
     emit('user_join', request.sid, broadcast=True, room=simulation_id)
+    update_power_map(simulation_id, request.sid, vot_pwr)
+    emit('power_update', get_total_sim_power(simulation_id), broadcast=True, room=simulation_id)        
 
 
 @socketio.on('propagate_blockchain')
@@ -78,6 +111,7 @@ def handle_message(data):
     message = data['message']
     room = data['room']
     emit('message', id + ": " + message, room=room)
+
 
 if __name__ == '__main__':
     socketio.run(app)
