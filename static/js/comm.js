@@ -1,5 +1,64 @@
 console.log('Hello!!!!!!!!!!@@@@@@@@@@')
 
+/**
+ * Just all the socket.on(****) calls
+ */
+var register_socketio_callbacks = () => {
+
+    console.log("Register socketio callbacks...")
+
+    // join a room if possible
+
+    if (voting_power && simulation_id) {
+        var obj = {
+            'voting_power': voting_power, 
+            'simulation_id': simulation_id
+        };
+        socket.emit('join_sim_id', obj);
+    }
+
+    socket.on('user_join', msg => { // when new node joins, send it your peers
+        console.log('id: ' + socket.id);
+        console.log('other id: ' + msg);
+        if (socket.id !== msg) { // new node joined, so seed dialing procedure here
+            console.log('sending peers to ' + msg);
+            var obj = {
+                'recipient': msg, 
+                'peers': peers,
+                'simulation_id': simulation_id
+            };
+            socket.emit('peers', obj);
+        } else { // self
+            $('#id').text(socket.id);
+            NODE_ID = socket.id; // CAN ONLY GET HERE???
+            register_consensus_worker(socket);
+        }
+        addPeers([msg]);
+        updatePeers();
+        console.log("GOT USER_JOIN PEERS: ", peers);
+    });
+
+    socket.on('message', msg => { // accepting general message from other node
+        console.log("Got message yea! ", msg);
+        $('#messages').append($('<li>').text(msg));
+    });
+
+    socket.on('peers', msg => { // accepting peers list from other node
+        console.log('Peers call');
+        console.log('Before filter')
+        console.log(peers)
+        let difference = msg.filter(x => peers.indexOf(x) < 0);
+        peers.push.apply(peers, difference);
+        console.log('got filtered peers')
+        console.log(peers)
+        updatePeers();
+      });
+}
+
+// available in the global context
+var socket = io();
+register_socketio_callbacks();
+
 
 var peers = []
 var messages = []
@@ -10,8 +69,9 @@ const DEFL_VOT_POWER = 0.5
 NODE_ID = 'invalid_id'
 
 var updatePeers = () => {
-  $('#peers').html('TOTAL: ' + peers.length + '<br>' + peers.join('<br>'))
-  updateGraph(peers);
+    $('#peers').html('TOTAL: ' + peers.length);
+    $('#peers_list').html(peers.join('<br>'))
+    updateGraph(peers);
 }
 
 var addPeers = (new_peers) => {
@@ -25,9 +85,7 @@ $(function () {
     // console.log('POWER GOTTEN: ' + this_js_script.attr('data-power'))
 
     console.log("JQUERY LOAD");
-    register_socketio_callbacks();
     register_form_callbacks(); // jquery callbacks call socketio functions
-
 });
 
 // TODO: messy, but consensus also needs socket lmao
@@ -66,70 +124,34 @@ var register_consensus_worker = (socket) => {
  * Handle HTML form calls, via jquery
  */
 var register_form_callbacks = () => {
-    // register the callback later
-    $('form#form-join').submit(e => {
+
+    console.log("Registering form callbacks...")
+
+     // register the callback later
+     $('form#form-message').submit(e => {
         e.preventDefault(); // prevents page reloading
-        var room = $('input#input-id').val();
-        console.log('GOT ROOM: ' + room);
-        var socket = io();
-        socket.emit('join', room)
-        // socket.emit('', '' + socket.id + ': ' + $('#m').val());
-
-        socket.on('message', msg => { // accepting general message from other node
-          $('#messages').append($('<li>').text(msg));
-        });
-
-        // register the callback later
-        $('form#form-message').submit(e => {
-            // e.preventDefault(); // prevents page reloading
-            var m_obj = {
-              id: socket.id,
-              message: $('input#input-message').val(),
-              room: room
-            };
-            socket.emit('message', m_obj);
-            $('input#input-message').val('');
-            return false;
-        });
-
+        var m_obj = {
+          id: socket.id,
+          message: $('input#input-message').val(),
+          room: simulation_id
+        };
+        socket.emit('message', m_obj);
+        $('input#input-message').val('');
         return false;
     });
-}
+    
+    // // register the callback later
+    // $('form#form-join').submit(e => {
+    //     e.preventDefault(); // prevents page reloading
+    //     var room = $('input#input-id').val();
+    //     console.log('GOT ROOM: ' + room);
+    //     socket.emit('join_sim_id', room)
+    //     // socket.emit('', '' + socket.id + ': ' + $('#m').val());
 
-/**
- * Just all the socket.on(****) calls
- */
-var register_socketio_callbacks = () => {
-    var socket = io();
+    //     socket.on('message', msg => { // accepting general message from other node
+    //       $('#messages').append($('<li>').text(msg));
+    //     });
 
-    socket.on('user_join', msg => { // when new node joins, send it your peers
-        console.log('id: ' + socket.id);
-        console.log('other id: ' + msg);
-        if (socket.id !== msg) { // new node joined, so seed dialing procedure here
-            console.log('sending peers to ' + msg);
-            socket.emit('peers', {'recipient': msg, 'peers': peers});
-        } else { // self
-            $('#id').text(socket.id);
-            NODE_ID = socket.id; // CAN ONLY GET HERE???
-            register_consensus_worker(socket);
-        }
-        addPeers([msg]);
-        updatePeers();
-        console.log("GOT USER_JOIN PEERS: ", peers);
-    });
-
-    socket.on('message', msg => { // accepting general message from other node
-        $('#messages').append($('<li>').text(msg));
-    });
-
-    socket.on('peers', msg => { // accepting peers list from other node
-        console.log('Peers call');
-        console.log('Before filter')
-        console.log(peers)
-        let difference = msg.filter(x => peers.indexOf(x) < 0);
-        peers.push.apply(peers, difference);
-        console.log('got filtered peers')
-        console.log(peers)
-        updatePeers();
-      });
+    //     return false;
+    // });
 }

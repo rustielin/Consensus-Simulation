@@ -43,46 +43,61 @@
 
           <div class="col s4 left">
                   <div>
-                      <h1>Voting power: {{power}} </h1>
-                      <h1>User ID</h1>
-                      <p id="id"></p>
-                      <h1 id="peerNum">Connected peers</h1>
-                      <div style="overflow-y: scroll; height:100px;">
-                          <p id="peers"></p>
-                      </div>
-                      <hr>
-                      <h1>Messages</h1>
-                      <div style="overflow-y: scroll; height:100px;">
-                          <ul id="messages"></ul>
-                      </div>
 
-                  </div>
-                  <div>
-
-                    <div style="padding-top: 50px">
-                      <form id="form-id" action="">
-                        <input id="input-id" autocomplete="off" placeholder="Simulation ID (e.g. abc123)" />
-                      </form>
-
-                      <form action="">
+                    <!-- User stats stuff -->
+                    <div>
+                      <h1>User Stats</h1>
+                      <p id="p_sim_id">Simulation ID: test sim id</p>
+                      <p id="p_vot_pwr">Voting power: test vot pwr </p>
+                      <div>User ID: <p id="id"></p> </div>
+  
+                      <div style="padding-top: 50px">
+                        <form id="form-id" action="">
+                          <input id="input-id" autocomplete="off" placeholder="Simulation ID (e.g. abc123)" />
+                        </form>
+    
+                        <form action="">
                           <input id="input-power" autocomplete="off" placeholder="Voting power (e.g. float range(0,1))"/>
                         </form>
+    
+                        <input id="form-join" type="button" class="btn waves-effect waves-light" value="Join with params" onclick="reload_with_params()"/>
+                    
+                      </div>
+                    </div>
 
-                        <input id="form-join" type="button" class="btn waves-effect waves-light"
-                                value="Join with params" onclick="reload_with_params()"/>
+                    <!-- Peer stuff -->
+                    <div>
+                      <h1 id="peerNum">Connected peers</h1>
+                      <p id="peers"></p>
+                      <p>Peers list:</p>
+  
+                      <div style="overflow-y: scroll; height:100px;">
+                          <p id="peers_list"></p>
+                      </div>
+                      <hr>
+                    </div>
+                    
+
+                  </div>
+
+                  <!-- Message log stuff -->
+                  <div>
+                    <h1>Messages</h1>
+                    <div style="overflow-y: scroll; height:100px;">
+                        <ul id="messages"></ul>
                     </div>
 
                     <div style="padding-top: 50px">
                       <form id="form-message" action="">
                         <input id="input-message" autocomplete="off" />
-                        <input type="button" class="btn waves-effect waves-light" value="Send message">
+                        <input type="submit" class="btn waves-effect waves-light" value="Send message">
                       </form>
                     </div>
-
                   </div>
 
             </div>
 
+            <!-- cytoscape and graph stuff -->
             <div class="col s8 right">
               <div id="cy"></div>
             </div>
@@ -92,6 +107,16 @@
 
 
     <!-- load all dom stuff first, then add JS  -->
+
+    <script>
+    
+      var simulation_id = '{{sim_id}}';
+      var voting_power = '{{power}}';
+      document.getElementById('p_sim_id').innerHTML = 'Simulation ID: ' + simulation_id;
+      document.getElementById('p_vot_pwr').innerHTML = 'Voting Power: ' + voting_power;
+
+    </script>
+    
     <script src="{{ url_for('static', filename='js/cytoscape-cola.js') }}"></script>
     <script src="{{ url_for('static', filename='js/graph.js') }}"></script>
     <script src="{{ url_for('static', filename='js/comm.js') }}"></script>
