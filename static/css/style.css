@@ -1,16 +1,11 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font: 13px Helvetica, Arial; z-index: 2;}
+body { font: 14px Helvetica, Arial; font-weight: 200; z-index: 2;}
 /* form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
 form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
 form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; } */
 #messages { list-style-type: none; margin: 0; padding: 0; }
 #messages li { padding: 5px 10px; }
 #messages li:nth-child(odd) { background: #eee; }
-
-/* Font sizes */
-h1 {
-    font: 20px Helvetica, Arial;
-}
 
 input[type=button] {
     color: white;
@@ -24,29 +19,48 @@ input[type=button] {
     top: 0;
     overflow-x: hidden;
     padding-top: 20px;
-  }
+}
 
-  /* Control the left side */
-  .left {
-      padding: 4rem;
-  }
+/* Control the left side */
+.left {
+    padding-left: 4rem !important;
+}
 
-  /* Control the right side */
-  .right {
-      height: 90vh;
-  }
+/* Control the right side */
+.right {
+    height: 90vh;
+}
 
-  /* If you want the content centered horizontally and vertically */
-  .centered {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-  }
+/* If you want the content centered horizontally and vertically */
+.centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
 
-  /* Style the image inside the centered container, if needed */
-  .centered img {
-      width: 150px;
-      border-radius: 50%;
-  }
+/* Style the image inside the centered container, if needed */
+.centered img {
+    width: 150px;
+    border-radius: 50%;
+}
+
+#body-wrapper {
+    padding: 2.5rem 0 2.5rem 0;
+}
+
+.scrollable-div {
+    overflow-y: scroll;
+    max-height: 100px;
+}
+
+#num-peers {
+    font-size: 16px;
+    font-weight: 200;
+    margin-bottom: 1rem;
+}
+
+#id {
+    font-size: 12px;
+}

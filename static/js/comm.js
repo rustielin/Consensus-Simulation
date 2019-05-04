@@ -10,7 +10,8 @@ const DEFL_VOT_POWER = 0.5
 NODE_ID = 'invalid_id'
 
 var updatePeers = () => {
-  $('#peers').html('TOTAL: ' + peers.length + '<br>' + peers.join('<br>'))
+  $('#num-peers').text('Total: ' + peers.length);
+  $('#peers').html(peers.join('<br>'));
   updateGraph(peers);
 }
 
