@@ -53,31 +53,30 @@ var register_socketio_callbacks = () => {
         console.log(peers)
         updatePeers();
       });
-}
+};
 
 // available in the global context
 var socket = io();
 register_socketio_callbacks();
 
+var peers = [];
+var messages = [];
+var heartBeats = []; // tbh make a peer object and store all in metadata
 
-peers = []
-var messages = []
-var heartBeats = [] // tbh make a peer object and store all in metadata
+const DEFL_VOT_POWER = 0.5;
 
-const DEFL_VOT_POWER = 0.5
-
-NODE_ID = 'invalid_id'
+NODE_ID = 'invalid_id';
 
 var updatePeers = () => {
-    $('#peers').html('TOTAL: ' + peers.length);
-    $('#peers_list').html(peers.join('<br>'))
+    $('#num-peers').html('Total: ' + peers.length);
+    $('#peers-list').html(peers.join('<br>'))
     updateGraph(peers);
-}
+};
 
 var addPeers = (new_peers) => {
     let difference = new_peers.filter(x => peers.indexOf(x) < 0);
     peers.push.apply(peers, difference);
-}
+};
 
 $(function () {
 
@@ -96,11 +95,20 @@ var register_consensus_worker = (socket) => {
     var worker = new Worker('/static/js/worker.js');
     worker.addEventListener('message', function(e) {
         console.log(e.data);
+        if ('blockchain' in e.data) {
+            var proposeData = {
+                blockchain: e.data.blockchain,
+                peers: peers
+            };
+            socket.emit('propose_blockchain', proposeData);
+        }
     });
     worker.postMessage({start_worker: {
         id: NODE_ID,
-        voting_power: DEFL_VOT_POWER
+        voting_power: DEFL_VOT_POWER,
+        // peers: peers,
     }}); // DEFL
+    // Not too clean, but each Worker thread needs to keep the socket/peers of the node.
 
     // when server sends blockchain from another client
     socket.on('received_blockchain', msg => {
@@ -125,7 +133,7 @@ var register_consensus_worker = (socket) => {
  */
 var register_form_callbacks = () => {
 
-    console.log("Registering form callbacks...")
+    console.log("Registering form callbacks...");
 
      // register the callback later
      $('form#form-message').submit(e => {

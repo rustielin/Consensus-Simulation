@@ -100,13 +100,13 @@ def handle_propose_blockchain(data):
     '''
     Routes proposed blockchain to all the peers of of a node.
     '''
-    print("HANDLING PROPOSE BLOCKCHAIN")
+    print("HANDLING PROPOSE BLOCKCHAIN...")
     blockchain = data['blockchain']
     peers = data['peers']
-    print(blockchain, peers)
     for peer in peers:
-        # Send to each peer individiually.
-        emit('received_blockchain', blockchain, room=peer)
+        if str(peer) != str(request.sid):
+            # Send to each peer individiually.
+            emit('received_blockchain', blockchain, room=peer)
 
 @socketio.on('propagate_blockchain')
 def handle_propagate_blockchain(blockchain):

@@ -18,11 +18,7 @@ var proposeBlock = (id, blockchain) => {
 	blockchain.length = blockchain.length + 1;
     blockchain.blocks.push(block);
     self.postMessage('NEW BLOCKCHAIN HEIGHT: ' + blockchain.blocks.length);
-	var proposeData = {
-		blockchain: blockchain,
-		peers: peers
-	}
-	socket.emit('propose_blockchain', proposeData);
+	self.postMessage({blockchain: blockchain});
 	return blockchain
 };
 
@@ -55,10 +51,10 @@ var client_loop = (id, p) => {
 
 self.addEventListener('message', function(e) {
 	console.log(e.data);
-    if ('start_worker' in e.data) {
+    if (e.data != null && 'start_worker' in e.data) {
         id = e.data.start_worker.id;
         vot_pwr = e.data.start_worker.voting_power;
-        soc = e.data.start_worker.socket;
+        // socket = e.data.start_worker.socket;
 
         self.postMessage('Worker started with power: ' + vot_pwr);
         setInterval(() => client_loop(id, vot_pwr), 1000); // a block every 1s normalized
