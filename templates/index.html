@@ -118,6 +118,16 @@
 
 
     <!-- load all dom stuff first, then add JS  -->
+
+    <script>
+
+      var simulation_id = '{{sim_id}}';
+      var voting_power = '{{power}}';
+      document.getElementById('p_sim_id').innerHTML = 'Simulation ID: ' + simulation_id;
+      document.getElementById('p_vot_pwr').innerHTML = 'Voting Power: ' + voting_power;
+
+    </script>
+
     <script src="{{ url_for('static', filename='js/cytoscape-cola.js') }}"></script>
     <script src="{{ url_for('static', filename='js/graph.js') }}"></script>
     <script src="{{ url_for('static', filename='js/comm.js') }}"></script>
