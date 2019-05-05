@@ -60,7 +60,7 @@ var socket = io();
 register_socketio_callbacks();
 
 
-var peers = []
+peers = []
 var messages = []
 var heartBeats = [] // tbh make a peer object and store all in metadata
 

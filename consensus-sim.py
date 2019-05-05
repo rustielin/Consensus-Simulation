@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 socketio = SocketIO(app)
 
-power_map = {} # track aggregate power in each 
+power_map = {} # track aggregate power in each
 
 # recalculate the total power in a simulation instance
 def update_power_map(sim_id, node_id, power):
@@ -63,8 +63,8 @@ def on_disconnect():
     Mainly want to remove entries in power map
     """
     print("DISCONNECTING: " + str(request.sid))
-    
-    sim_ids = set() # keep a set of affected simulations 
+
+    sim_ids = set() # keep a set of affected simulations
     for sim_id in power_map: # search the power map for membership in simulations
         d = power_map[sim_id]
         if request.sid in d:
@@ -75,7 +75,7 @@ def on_disconnect():
     print(sim_ids)
 
     for sim in sim_ids:
-        emit('power_update', get_total_sim_power(sim), broadcast=True, room=sim)        
+        emit('power_update', get_total_sim_power(sim), broadcast=True, room=sim)
 
 
 @socketio.on('peers')
@@ -93,8 +93,20 @@ def handle_sim_join(data):
     join_room(simulation_id)
     emit('user_join', request.sid, broadcast=True, room=simulation_id)
     update_power_map(simulation_id, request.sid, vot_pwr)
-    emit('power_update', get_total_sim_power(simulation_id), broadcast=True, room=simulation_id)        
+    emit('power_update', get_total_sim_power(simulation_id), broadcast=True, room=simulation_id)
 
+@socketio.on('propose_blockchain')
+def handle_propose_blockchain(data):
+    '''
+    Routes proposed blockchain to all the peers of of a node.
+    '''
+    print("HANDLING PROPOSE BLOCKCHAIN")
+    blockchain = data['blockchain']
+    peers = data['peers']
+    print(blockchain, peers)
+    for peer in peers:
+        # Send to each peer individiually.
+        emit('received_blockchain', blockchain, room=peer)
 
 @socketio.on('propagate_blockchain')
 def handle_propagate_blockchain(blockchain):
@@ -103,10 +115,8 @@ def handle_propagate_blockchain(blockchain):
     '''
     emit('received_blockchain', blockchain, broadcast=True)
 
-
 @socketio.on('message')
 def handle_message(data):
-    print(data)
     id = data['id']
     message = data['message']
     room = data['room']

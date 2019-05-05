@@ -64,3 +64,7 @@ input[type=button] {
 #id {
     font-size: 12px;
 }
+
+.container {
+    width: 80%;
+}
