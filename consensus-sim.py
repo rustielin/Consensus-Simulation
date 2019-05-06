@@ -102,7 +102,7 @@ def handle_propose_blockchain(data):
     '''
     print("HANDLING PROPOSE BLOCKCHAIN...")
     blockchain = data['blockchain']
-    peers = data['peersSeen']
+    peers = data['peersToPropagate']
     for peer in peers:
         # Don't propose to ourselves.
         # if str(peer) != str(request.sid):
@@ -119,7 +119,6 @@ def handle_propagate_blockchain(data):
     peers_seen = data["peersSeen"]
     peers_to_propagate = data["peersToPropagate"]
     for peer in peers_to_propagate:
-        print(peer)
         emit('received_blockchain', data, room=peer)
     # emit('received_blockchain', data, broadcast=True)
 

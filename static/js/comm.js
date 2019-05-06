@@ -91,9 +91,12 @@ var register_consensus_worker = (socket) => {
         } else if ('blockchain' in e.data) {
             var proposeData = {
                 blockchain: e.data.blockchain,
-                peersSeen: peers
+                peersSeen: [],
+                peersToPropagate: peers
             };
             socket.emit('propose_blockchain', proposeData);
+        } else {
+            console.log(e.data);
         }
     });
     worker.postMessage({start_worker: {
@@ -109,7 +112,7 @@ var register_consensus_worker = (socket) => {
         // if proposing block, need to take current copy of the blockchain
         // call create block
         // publish it to all of my peers
-
+        // my name justin
         let chain = data.blockchain;
         var peersToExclude = data.peersSeen;
         console.log('Propagating block...');
@@ -122,13 +125,13 @@ var register_consensus_worker = (socket) => {
             peersSeen: peersToExclude,
             peersToPropagate: filteredPeers
         };
-        console.log("PEERS TO EXCLUDE: ");
-        console.log(peersToExclude);
-        console.log("PEERS TO PROPAGATE: ");
-        console.log(filteredPeers);
-        console.log("CURRENT BLOCKCHAIN FOR " + NODE_ID + ": ");
-        console.log(chain);
-        worker.postMessage({propogate_block: msg});
+        // console.log("PEERS TO EXCLUDE: ");
+        // console.log(peersToExclude);
+        // console.log("PEERS TO PROPAGATE: ");
+        // console.log(filteredPeers);
+        // console.log("CURRENT BLOCKCHAIN FOR " + NODE_ID + ": ");
+        // console.log(chain);
+        worker.postMessage({propagate_block: msg});
         socket.emit('propagate_blockchain', msg); // at the same time, be accepting new chains
     });
 

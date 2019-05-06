@@ -17,7 +17,7 @@ var proposeBlock = (id, blockchain) => {
 	};
 	blockchain.length = blockchain.length + 1;
     blockchain.blocks.push(block);
-    self.postMessage('NEW BLOCKCHAIN HEIGHT: ' + blockchain.blocks.length);
+    // self.postMessage('NEW BLOCKCHAIN HEIGHT: ' + blockchain.blocks.length);
 	self.postMessage({blockchain: blockchain});
 	return blockchain
 };
@@ -27,9 +27,15 @@ var proposeBlock = (id, blockchain) => {
 var propagateBlock = (other_blockchain) => {
 	// new blockchain: user_blockchain
 	// old blockchain: blockchain
+	self.postMessage('COMPARING BLOCKCHAINS');
+	self.postMessage('OTHER HEIGHT: ' + other_blockchain.length);
+	self.postMessage('OUR HEIGHT: ' + blockchain.length);
+
 	if (other_blockchain.length > blockchain.length) {
 		blockchain = other_blockchain;
 		var from = blockchain.blocks[blockchain.blocks.length - 1].creator;
+		self.postMessage('UPDATING BLOCKCHAIN: ');
+		self.postMessage(blockchain);
 		// peers.foreach(peer => {
 		// 	if (peer != from) { // Don't send to the peer that propogated to us.
 		// 		socket.emit('received_blockchain', blockchain); // TODO: make some abstraction for sockets here
@@ -46,8 +52,7 @@ var client_loop = (id, p) => {
 
     r = Math.random();
     if (r < p) {
-
-        self.postMessage('PROPOSAL BY NODE ' + id);
+        self.postMessage('PROPOSAL BY NODE ' + id + ' with power = ' + p);
         proposeBlock(id, blockchain);
     }
 
