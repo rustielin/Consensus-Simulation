@@ -85,6 +85,7 @@ $(function () {
 var register_consensus_worker = (socket) => {
     // all nodes spinning until they can propose (see blockchain.js)
     var worker = new Worker('/static/js/worker.js');
+
     worker.addEventListener('message', function(e) {
         if (typeof e.data === 'string' || e.data instanceof String) {
             console.log(e.data);
@@ -111,7 +112,7 @@ var register_consensus_worker = (socket) => {
     });
     worker.postMessage({start_worker: {
         id: NODE_ID,
-        voting_power: DEFL_VOT_POWER,
+        voting_power: voting_power,
         // peers: peers,
     }}); // DEFL
     // Not too clean, but each Worker thread needs to keep the socket/peers of the node.

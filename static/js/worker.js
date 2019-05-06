@@ -66,7 +66,7 @@ self.addEventListener('message', function(e) {
         // socket = e.data.start_worker.socket;
 
         self.postMessage('Worker started with power: ' + vot_pwr);
-        setInterval(() => client_loop(id, vot_pwr), 1000); // a block every 1s normalized
+        setInterval(() => client_loop(id, vot_pwr), 3000); // a block every 1s normalized
         self.postMessage('LOOP');
     } else if ('propagate_block' in e.data) {
         propagateBlock(e.data.propagate_block.blockchain);
