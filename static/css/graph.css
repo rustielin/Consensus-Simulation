@@ -1,5 +1,6 @@
 body {
     font: 14px helvetica neue, helvetica, arial, sans-serif;
+    font-weight: 200;
 }
 
 #cy {
@@ -13,4 +14,5 @@ body {
     background-color: white;
     position: relative;
     display: block;
+    font-weight: 200;
 }

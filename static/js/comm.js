@@ -96,14 +96,20 @@ var register_consensus_worker = (socket) => {
                 peersSeen: [],
                 peersToPropagate: peers
             };
+            animateProposal(socket.id);
             socket.emit('propose_blockchain', proposeData);
         } else if ('updated_blockchain' in e.data) {
             // AAAH SO UGLY!
-            console.log(e.data.updated_blockchain);
+            // console.log(e.data.updated_blockchain);
             let blocks = e.data.updated_blockchain.blocks;
             var id_str = '';
             for (var i = 0; i < blocks.length; i += 1) {
                 id_str += "Block " + i + ": " + blocks[i].creator + "<br>";
+            }
+            let latestBlockCreator = blocks[blocks.length - 1].creator;
+            console.log("UPDATING BLOCKCHAIN");
+            if (e.data.changed) {
+                animateProposal(latestBlockCreator);
             }
             $('#blockchain-display').html(id_str);
         } else {
@@ -127,7 +133,7 @@ var register_consensus_worker = (socket) => {
         let chain = data.blockchain;
         let proposer = data.proposer;
         var peersToExclude = data.peersSeen;
-        console.log('Propagating block...');
+        // console.log('Propagating block...');
         // Don't propagate to peers that have already seen the block.
         let filteredPeers = peers.filter(x => peersToExclude.indexOf(x) < 0);
         // Keep track of all peers that have already been propogated to.

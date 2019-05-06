@@ -77,7 +77,6 @@ def on_disconnect():
     for sim in sim_ids:
         emit('power_update', get_total_sim_power(sim), broadcast=True, room=sim)
 
-
 @socketio.on('peers')
 def handle_peers(data):
     recipient = data['recipient']
@@ -100,7 +99,6 @@ def handle_propose_blockchain(data):
     '''
     Routes proposed blockchain to all the peers of of a node.
     '''
-    print("HANDLING PROPOSE BLOCKCHAIN...")
     # blockchain = data['blockchain']
     peers = data['peersToPropagate']
     for peer in peers:

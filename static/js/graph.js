@@ -9,7 +9,8 @@ var cy = cytoscape({
       selector: 'node',
       css: {
         'content': 'data(id)',
-        'background-color': '#f92411'
+        'background-color': '#f92411',
+        'font-weight': '200'
       }
     },
     {
@@ -74,10 +75,20 @@ var addNode = (id, parent) => {
   }
 }
 
-// worker.js can't see this method? what is javascript
 var animateProposal = (id) => {
     var node = getNode(id);
-    console.log(node);
+    node.animate({
+        css: {
+            'background-color': 'blue'
+        }
+    }, {
+        duration: 500,
+        complete: () => {
+            node.animate({
+                css: {'background-color': 'red'}
+            }, {duration: 500});
+        }
+    });
 }
 
 // TODO: network graph actually, or updates to it
@@ -98,8 +109,8 @@ var updateGraph = (peers) => {
   for (i = 0; i < peers.length; i++) {
     for (j = 0; j < peers.length; j++) {
       // if (Math.random() < 0.01) {
-        addEdge(peers[i], peers[j])
-        console.log("ADDED EDGE")
+        addEdge(peers[i], peers[j]);
+        // console.log("ADDED EDGE")
       // }
     }
   }

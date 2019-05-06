@@ -27,22 +27,17 @@ var proposeBlock = (id, blockchain) => {
 var propagateBlock = (other_blockchain) => {
 	// new blockchain: user_blockchain
 	// old blockchain: blockchain
-	self.postMessage('COMPARING BLOCKCHAINS');
-	self.postMessage('OTHER HEIGHT: ' + other_blockchain.length);
-	self.postMessage('OUR HEIGHT: ' + blockchain.length);
+	// self.postMessage('COMPARING BLOCKCHAINS');
+	// self.postMessage('OTHER HEIGHT: ' + other_blockchain.length);
+	// self.postMessage('OUR HEIGHT: ' + blockchain.length);
 
+	var changed = false;
 	if (other_blockchain.length > blockchain.length) {
 		blockchain = other_blockchain;
 		var from = blockchain.blocks[blockchain.blocks.length - 1].creator;
-		self.postMessage('UPDATING BLOCKCHAIN: ');
-		self.postMessage(blockchain);
-		// peers.foreach(peer => {
-		// 	if (peer != from) { // Don't send to the peer that propogated to us.
-		// 		socket.emit('received_blockchain', blockchain); // TODO: make some abstraction for sockets here
-		// 	}
-		// });
+		changed = true;
 	}
-	self.postMessage({updated_blockchain: blockchain});
+	self.postMessage({updated_blockchain: blockchain, changed: changed});
 };
 
 
@@ -65,15 +60,15 @@ self.addEventListener('message', function(e) {
         vot_pwr = e.data.start_worker.voting_power;
         // socket = e.data.start_worker.socket;
 
-        self.postMessage('Worker started with power: ' + vot_pwr);
+        // self.postMessage('Worker started with power: ' + vot_pwr);
         setInterval(() => client_loop(id, vot_pwr), 3000); // a block every 1s normalized
-        self.postMessage('LOOP');
+        // self.postMessage('LOOP');
     } else if ('propagate_block' in e.data) {
         propagateBlock(e.data.propagate_block.blockchain);
     } else if ('stop_worker' in e.data) {
-        self.postMessage('STOPPED WORKER');
+        // self.postMessage('STOPPED WORKER');
         self.close();
     } else {
-        self.postMessage('INVALID MESSAGE IDK WHAT YOU"RE SAYING AHHHH');
+        // self.postMessage('INVALID MESSAGE IDK WHAT YOU"RE SAYING AHHHH');
     }
 });

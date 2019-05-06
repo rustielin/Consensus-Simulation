@@ -66,7 +66,7 @@ input[type=button] {
 
 .scrollable-div {
     overflow-y: scroll;
-    max-height: 100px;
+    max-height: 200px;
 }
 
 #num-peers {
