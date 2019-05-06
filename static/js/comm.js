@@ -1,17 +1,16 @@
-console.log('Hello!!!!!!!!!!@@@@@@@@@@')
 
 /**
  * Just all the socket.on(****) calls
  */
 var register_socketio_callbacks = () => {
 
-    console.log("Register socketio callbacks...")
+    console.log("Register socketio callbacks...");
 
     // join a room if possible
 
     if (voting_power && simulation_id) {
         var obj = {
-            'voting_power': voting_power, 
+            'voting_power': voting_power,
             'simulation_id': simulation_id
         };
         socket.emit('join_sim_id', obj);
@@ -23,7 +22,7 @@ var register_socketio_callbacks = () => {
         if (socket.id !== msg) { // new node joined, so seed dialing procedure here
             console.log('sending peers to ' + msg);
             var obj = {
-                'recipient': msg, 
+                'recipient': msg,
                 'peers': peers,
                 'simulation_id': simulation_id
             };
@@ -44,40 +43,34 @@ var register_socketio_callbacks = () => {
     });
 
     socket.on('peers', msg => { // accepting peers list from other node
-        console.log('Peers call');
-        console.log('Before filter')
-        console.log(peers)
         let difference = msg.filter(x => peers.indexOf(x) < 0);
         peers.push.apply(peers, difference);
-        console.log('got filtered peers')
-        console.log(peers)
         updatePeers();
       });
-}
+};
 
 // available in the global context
 var socket = io();
 register_socketio_callbacks();
 
+var peers = [];
+var messages = [];
+var heartBeats = []; // tbh make a peer object and store all in metadata
 
-var peers = []
-var messages = []
-var heartBeats = [] // tbh make a peer object and store all in metadata
+const DEFL_VOT_POWER = 0.5;
 
-const DEFL_VOT_POWER = 0.5
-
-NODE_ID = 'invalid_id'
+NODE_ID = 'invalid_id';
 
 var updatePeers = () => {
-    $('#peers').html('TOTAL: ' + peers.length);
-    $('#peers_list').html(peers.join('<br>'))
+    $('#num-peers').html('Total: ' + peers.length);
+    $('#peers-list').html(peers.join('<br>'))
     updateGraph(peers);
-}
+};
 
 var addPeers = (new_peers) => {
     let difference = new_peers.filter(x => peers.indexOf(x) < 0);
     peers.push.apply(peers, difference);
-}
+};
 
 $(function () {
 
@@ -90,29 +83,68 @@ $(function () {
 
 // TODO: messy, but consensus also needs socket lmao
 var register_consensus_worker = (socket) => {
-    console.log("CONSENUS STARTINGGGG")
-
     // all nodes spinning until they can propose (see blockchain.js)
     var worker = new Worker('/static/js/worker.js');
+
     worker.addEventListener('message', function(e) {
-        console.log(e.data);
+        if (typeof e.data === 'string' || e.data instanceof String) {
+            console.log(e.data);
+        } else if ('blockchain' in e.data) {
+            var proposeData = {
+                proposer: socket.id,
+                blockchain: e.data.blockchain,
+                peersSeen: [],
+                peersToPropagate: peers
+            };
+            socket.emit('propose_blockchain', proposeData);
+        } else if ('updated_blockchain' in e.data) {
+            // AAAH SO UGLY!
+            console.log(e.data.updated_blockchain);
+            let blocks = e.data.updated_blockchain.blocks;
+            var id_str = '';
+            for (var i = 0; i < blocks.length; i += 1) {
+                id_str += "Block " + i + ": " + blocks[i].creator + "<br>";
+            }
+            $('#blockchain-display').html(id_str);
+        } else {
+            console.log(e.data);
+        }
     });
     worker.postMessage({start_worker: {
         id: NODE_ID,
-        voting_power: DEFL_VOT_POWER
+        voting_power: voting_power,
+        // peers: peers,
     }}); // DEFL
+    // Not too clean, but each Worker thread needs to keep the socket/peers of the node.
 
     // when server sends blockchain from another client
-    socket.on('received_blockchain', msg => {
+    socket.on('received_blockchain', data => {
 
         // if proposing block, need to take current copy of the blockchain
         // call create block
         // publish it to all of my peers
-
-        console.log('Propagating block');
-        worker.postMessage({propogate_block: {
-            blockchain: msg
-        }});
+        // my name justin
+        let chain = data.blockchain;
+        let proposer = data.proposer;
+        var peersToExclude = data.peersSeen;
+        console.log('Propagating block...');
+        // Don't propagate to peers that have already seen the block.
+        let filteredPeers = peers.filter(x => peersToExclude.indexOf(x) < 0);
+        // Keep track of all peers that have already been propogated to.
+        peersToExclude.push.apply(peersToExclude, filteredPeers);
+        let msg = {
+            proposer: proposer,
+            blockchain: chain,
+            peersSeen: peersToExclude,
+            peersToPropagate: filteredPeers
+        };
+        // console.log("PEERS TO EXCLUDE: ");
+        // console.log(peersToExclude);
+        // console.log("PEERS TO PROPAGATE: ");
+        // console.log(filteredPeers);
+        // console.log("CURRENT BLOCKCHAIN FOR " + NODE_ID + ": ");
+        // console.log(chain);
+        worker.postMessage({propagate_block: msg});
         socket.emit('propagate_blockchain', msg); // at the same time, be accepting new chains
     });
 
@@ -125,7 +157,7 @@ var register_consensus_worker = (socket) => {
  */
 var register_form_callbacks = () => {
 
-    console.log("Registering form callbacks...")
+    console.log("Registering form callbacks...");
 
      // register the callback later
      $('form#form-message').submit(e => {
@@ -139,7 +171,7 @@ var register_form_callbacks = () => {
         $('input#input-message').val('');
         return false;
     });
-    
+
     // // register the callback later
     // $('form#form-join').submit(e => {
     //     e.preventDefault(); // prevents page reloading

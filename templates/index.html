@@ -1,26 +1,26 @@
 <!doctype html>
 <html>
-  <head>
+<head>
 
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
 
     <!-- for getting the params and reloading -->
     <script>
-      var reload_with_params = () => {
+    var reload_with_params = () => {
         var url = window.location.href;
         var idx = url.indexOf('?')
         if (idx > -1){ // found it, remove it
-          url = url.substr(0, idx);
+            url = url.substr(0, idx);
         }
         url += '?power=' + document.getElementById("input-power").value +'&sim_id=' + document.getElementById("input-id").value;
         window.location.href = url;
-      }
+    }
     </script>
 
     <!-- Import a bunch of stuff -->
     <script src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.slim.dev.js"></script>
-		<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+    <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
     <script
     src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
@@ -36,90 +36,102 @@
 
     <title>Consensus Simulation 2.0</title>
 
-  </head>
-  <body>
+</head>
+<body>
+    <div id="body-wrapper" class="row container">
 
-      <div class="row">
+        <div class="col s4 left">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">User</span>
+                    <ul class="collection">
+                        <li class="collection-item">
+                            <p>ID: <span id="id" class="badge"></span></p>
+                        </li>
+                        <li class="collection-item">
+                            <p>Voting power: <span class="badge" class="flow-text">{{power}}</span></p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
-          <div class="col s4 left">
-                  <div>
-
-                    <!-- User stats stuff -->
-                    <div>
-                      <h1>User Stats</h1>
-                      <p id="p_sim_id">Simulation ID: test sim id</p>
-                      <p id="p_vot_pwr">Voting power: test vot pwr </p>
-                      <div>User ID: <p id="id"></p> </div>
-  
-                      <div style="padding-top: 50px">
-                        <form id="form-id" action="">
-                          <input id="input-id" autocomplete="off" placeholder="Simulation ID (e.g. abc123)" />
-                        </form>
-    
-                        <form action="">
-                          <input id="input-power" autocomplete="off" placeholder="Voting power (e.g. float range(0,1))"/>
-                        </form>
-    
-                        <input id="form-join" type="button" class="btn waves-effect waves-light" value="Join with params" onclick="reload_with_params()"/>
-                    
-                      </div>
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">Connected Peers</span>
+                    <div class="scrollable-div">
+                        <p id="num-peers"></p>
+                        <p id="peers-list"></p>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Peer stuff -->
-                    <div>
-                      <h1 id="peerNum">Connected peers</h1>
-                      <p id="peers"></p>
-                      <p>Peers list:</p>
-  
-                      <div style="overflow-y: scroll; height:100px;">
-                          <p id="peers_list"></p>
-                      </div>
-                      <hr>
-                    </div>
-                    
-
-                  </div>
-
-                  <!-- Message log stuff -->
-                  <div>
-                    <h1>Messages</h1>
-                    <div style="overflow-y: scroll; height:100px;">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">Network Events</span>
+                    <div class="scrollable-div">
                         <ul id="messages"></ul>
+                        <p id="blockchain-display"></p>
                     </div>
-
-                    <div style="padding-top: 50px">
-                      <form id="form-message" action="">
-                        <input id="input-message" autocomplete="off" />
-                        <input type="submit" class="btn waves-effect waves-light" value="Send message">
-                      </form>
-                    </div>
-                  </div>
-
+                </div>
             </div>
 
-            <!-- cytoscape and graph stuff -->
-            <div class="col s8 right">
-              <div id="cy"></div>
-            </div>
+            <div class="card">
+                <div class="card-content">
+                    <div>
+                        <form id="form-id" action="">
+                            <div class="input-field">
+                                <input id="input-id" type="text" class="validate" autocomplete="off" />
+                                <label class="active" for="input-id">Simulation ID (ex: abc123)</label>
+                            </div>
+                        </form>
 
-      </div>
+                        <form action="">
+                            <div class="input-field">
+                                <input id="input-power" type="text" class="validate" autocomplete="off" />
+                                <label class="active" for="input-power">Voting Power (float in range(0,1))</label>
+                            </div>
+                        </form>
+
+                        <input id="form-join" type="button" class="btn waves-effect waves-light"
+                        value="Join with params" onclick="reload_with_params()"/>
+                    </div>
+
+                    <div style="padding-top: 20px">
+                        <form id="form-message" action="">
+                            <div class="input-field">
+                                <input id="input-message" type="text" class="validate" autocomplete="off" />
+                                <label class="active" for="input-message">Message</label>
+                            </div>
+                            <input type="submit" class="btn waves-effect waves-light" value="Send message">
+                        </form>
+                    </div>
+
+                </div>
+                </div>
+        </div>
+
+        <div class="col s8 right">
+            <div id="cy" class="z-depth-2"></div>
+        </div>
+
+    </div>
 
 
 
     <!-- load all dom stuff first, then add JS  -->
 
     <script>
-    
+
       var simulation_id = '{{sim_id}}';
       var voting_power = '{{power}}';
       document.getElementById('p_sim_id').innerHTML = 'Simulation ID: ' + simulation_id;
       document.getElementById('p_vot_pwr').innerHTML = 'Voting Power: ' + voting_power;
 
     </script>
-    
+
     <script src="{{ url_for('static', filename='js/cytoscape-cola.js') }}"></script>
     <script src="{{ url_for('static', filename='js/graph.js') }}"></script>
     <script src="{{ url_for('static', filename='js/comm.js') }}"></script>
     <script src="{{ url_for('static', filename='js/worker.js') }}"></script>
-  </body>
+</body>
 </html>
