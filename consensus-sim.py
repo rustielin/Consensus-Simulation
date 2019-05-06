@@ -101,7 +101,7 @@ def handle_propose_blockchain(data):
     Routes proposed blockchain to all the peers of of a node.
     '''
     print("HANDLING PROPOSE BLOCKCHAIN...")
-    blockchain = data['blockchain']
+    # blockchain = data['blockchain']
     peers = data['peersToPropagate']
     for peer in peers:
         # Don't propose to ourselves.

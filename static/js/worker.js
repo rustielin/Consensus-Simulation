@@ -42,6 +42,7 @@ var propagateBlock = (other_blockchain) => {
 		// 	}
 		// });
 	}
+	self.postMessage({updated_blockchain: blockchain});
 };
 
 
