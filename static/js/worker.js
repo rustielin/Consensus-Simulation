@@ -29,9 +29,12 @@ var propagateBlock = (other_blockchain) => {
 	// old blockchain: blockchain
 	if (other_blockchain.length > blockchain.length) {
 		blockchain = other_blockchain;
-		peers.foreach(peer => {
-			socket.emit('received_blockchain', blockchain); // TODO: make some abstraction for sockets here
-		});
+		var from = blockchain.blocks[blockchain.blocks.length - 1].creator;
+		// peers.foreach(peer => {
+		// 	if (peer != from) { // Don't send to the peer that propogated to us.
+		// 		socket.emit('received_blockchain', blockchain); // TODO: make some abstraction for sockets here
+		// 	}
+		// });
 	}
 };
 
@@ -43,6 +46,7 @@ var client_loop = (id, p) => {
 
     r = Math.random();
     if (r < p) {
+
         self.postMessage('PROPOSAL BY NODE ' + id);
         proposeBlock(id, blockchain);
     }
@@ -50,8 +54,7 @@ var client_loop = (id, p) => {
 }
 
 self.addEventListener('message', function(e) {
-	console.log(e.data);
-    if (e.data != null && 'start_worker' in e.data) {
+    if ('start_worker' in e.data) {
         id = e.data.start_worker.id;
         vot_pwr = e.data.start_worker.voting_power;
         // socket = e.data.start_worker.socket;

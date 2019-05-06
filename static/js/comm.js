@@ -1,11 +1,10 @@
-console.log('Hello!!!!!!!!!!@@@@@@@@@@')
 
 /**
  * Just all the socket.on(****) calls
  */
 var register_socketio_callbacks = () => {
 
-    console.log("Register socketio callbacks...")
+    console.log("Register socketio callbacks...");
 
     // join a room if possible
 
@@ -44,13 +43,8 @@ var register_socketio_callbacks = () => {
     });
 
     socket.on('peers', msg => { // accepting peers list from other node
-        console.log('Peers call');
-        console.log('Before filter')
-        console.log(peers)
         let difference = msg.filter(x => peers.indexOf(x) < 0);
         peers.push.apply(peers, difference);
-        console.log('got filtered peers')
-        console.log(peers)
         updatePeers();
       });
 };
@@ -89,16 +83,15 @@ $(function () {
 
 // TODO: messy, but consensus also needs socket lmao
 var register_consensus_worker = (socket) => {
-    console.log("CONSENUS STARTINGGGG")
-
     // all nodes spinning until they can propose (see blockchain.js)
     var worker = new Worker('/static/js/worker.js');
     worker.addEventListener('message', function(e) {
-        console.log(e.data);
-        if ('blockchain' in e.data) {
+        if (typeof e.data === 'string' || e.data instanceof String) {
+            console.log(e.data);
+        } else if ('blockchain' in e.data) {
             var proposeData = {
                 blockchain: e.data.blockchain,
-                peers: peers
+                peersSeen: peers
             };
             socket.emit('propose_blockchain', proposeData);
         }
@@ -111,16 +104,31 @@ var register_consensus_worker = (socket) => {
     // Not too clean, but each Worker thread needs to keep the socket/peers of the node.
 
     // when server sends blockchain from another client
-    socket.on('received_blockchain', msg => {
+    socket.on('received_blockchain', data => {
 
         // if proposing block, need to take current copy of the blockchain
         // call create block
         // publish it to all of my peers
 
-        console.log('Propagating block');
-        worker.postMessage({propogate_block: {
-            blockchain: msg
-        }});
+        let chain = data.blockchain;
+        var peersToExclude = data.peersSeen;
+        console.log('Propagating block...');
+        // Don't propagate to peers that have already seen the block.
+        let filteredPeers = peers.filter(x => peersToExclude.indexOf(x) < 0);
+        // Keep track of all peers that have already been propogated to.
+        peersToExclude.push.apply(peersToExclude, filteredPeers);
+        let msg = {
+            blockchain: chain,
+            peersSeen: peersToExclude,
+            peersToPropagate: filteredPeers
+        };
+        console.log("PEERS TO EXCLUDE: ");
+        console.log(peersToExclude);
+        console.log("PEERS TO PROPAGATE: ");
+        console.log(filteredPeers);
+        console.log("CURRENT BLOCKCHAIN FOR " + NODE_ID + ": ");
+        console.log(chain);
+        worker.postMessage({propogate_block: msg});
         socket.emit('propagate_blockchain', msg); // at the same time, be accepting new chains
     });
 

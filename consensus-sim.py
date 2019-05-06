@@ -102,18 +102,26 @@ def handle_propose_blockchain(data):
     '''
     print("HANDLING PROPOSE BLOCKCHAIN...")
     blockchain = data['blockchain']
-    peers = data['peers']
+    peers = data['peersSeen']
     for peer in peers:
-        if str(peer) != str(request.sid):
-            # Send to each peer individiually.
-            emit('received_blockchain', blockchain, room=peer)
+        # Don't propose to ourselves.
+        # if str(peer) != str(request.sid):
+        # Send to each peer individiually.
+        # Send the peers of the current node to exclude form peers of the propagation.
+        emit('received_blockchain', data, room=peer)
 
 @socketio.on('propagate_blockchain')
-def handle_propagate_blockchain(blockchain):
+def handle_propagate_blockchain(data):
     '''
     Basically just a message handler. Forwards the entire blockchain between nodes
     '''
-    emit('received_blockchain', blockchain, broadcast=True)
+    blockchain = data["blockchain"]
+    peers_seen = data["peersSeen"]
+    peers_to_propagate = data["peersToPropagate"]
+    for peer in peers_to_propagate:
+        print(peer)
+        emit('received_blockchain', data, room=peer)
+    # emit('received_blockchain', data, broadcast=True)
 
 @socketio.on('message')
 def handle_message(data):
